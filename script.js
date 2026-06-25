@@ -7,6 +7,7 @@ const btnMp4 = document.getElementById("btn-mp4");
 const convertBtn = document.getElementById("convert-btn");
 const urlInput = document.getElementById("yt-url");
 const statusBox = document.getElementById("status-box");
+const resultBox = document.getElementById("result-box");
 const thumb = document.getElementById("thumb");
 const videoTitle = document.getElementById("video-title");
 const downloadLink = document.getElementById("download-link");
@@ -14,7 +15,7 @@ const downloadLink = document.getElementById("download-link");
 btnMp3.addEventListener("click", () => {
     selectedFormat = "mp3";
     btnMp3.classList.add("active");
-    btnMp4.classList.remove("remove");
+    btnMp4.classList.remove("active");
     statusBox.classList.add("d-none");
     resultBox.classList.add("d-none");
 });
@@ -28,7 +29,7 @@ btnMp4.addEventListener("click", () => {
     showStatus("⚠️ MP4 download is currently under development. Please use MP3 for now.");
 });
 
-convertBtn.addeventListener("click", async () => {
+convertBtn.addEventListener("click", async () => {
     if (selectedFormat === "mp4") {
         showStatus("⚠️ MP4 download is currently under development. Please use MP3 for now.");
         return;
@@ -47,20 +48,20 @@ convertBtn.addeventListener("click", async () => {
     try {
         const response = await
 fetch(`${BACKEND}/api/convert`, {
-    method: "POST"
+    method: "POST", 
     headers: { "Content-Type": "application/json" }, 
     body: JSON.stringify({ url, format: selectedFormat })
     });
     
     const data = await response.json();
     
-    if (!response.ok || ! data.success) {
+    if (!response.ok || !data.success) {
         showStatus(data.message || "Conversion failed. Try again.");
         return;
     }
 
 statusBox.classList.add("d-none");
-    thumb.src = data.data.thumbnail || "", 
+    thumb.src = data.thumbnail || "", 
     videoTitle.textContent = data.title || "YouTube Video";
     downloadLink.href = data.download_url;
 
