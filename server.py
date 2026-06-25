@@ -33,7 +33,7 @@ def convert():
     if not video_id:
         return jsonify({"success": False, "message": " Invalid YouTube URL"}), 400
     
-    thumbnail = "https://img.youtube.com/vi/{video_id}/hqdefault.jpg" 
+    thumbnail = f"https://img.youtube.com/vi/{video_id}/hqdefault.jpg" 
     
     api_url = "https://youtube-mp36.p.rapidapi.com/dl" 
     headers = {
@@ -42,7 +42,7 @@ def convert():
     }
     params = {"id": video_id}
     
-    response = requests(api_url, headers=headers, params=params)
+    response = requests.get(api_url, headers=headers, params=params)
     result = response.json()
     
     if result.get("get") == "ok":
@@ -61,4 +61,5 @@ def index():
     return jsonify({"message": "YTGrab API is running!"}), 200
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    import os
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
