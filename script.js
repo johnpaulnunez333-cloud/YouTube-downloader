@@ -23,7 +23,7 @@ btnMp3.addEventListener("click", () => {
 btnMp4.addEventListener("click", () => {
     selectedFormat = "mp4";
     btnMp4.classList.add("active");
-    btnMp4.classList.remove("active");
+    btnMp3.classList.remove("active");
     statusBox.classList.add("d-none");
     resultBox.classList.add("d-none");
     showStatus("⚠️ MP4 download is currently under development. Please use MP3 for now.");
@@ -34,40 +34,37 @@ convertBtn.addEventListener("click", async () => {
         showStatus("⚠️ MP4 download is currently under development. Please use MP3 for now.");
         return;
     }
-    
+
     const url = urlInput.value.trim();
-    
+
     if (!url) {
         showStatus("Please paste a YouTube URL first.");
         return;
     }
-    
-    showStatus("Converting... please wait.")
+
+    showStatus("Converting... please wait.");
     resultBox.classList.add("d-none");
-    
+
     try {
-        const response = await
-fetch(`${BACKEND}/api/convert`, {
-    method: "POST", 
-    headers: { "Content-Type": "application/json" }, 
-    body: JSON.stringify({ url, format: selectedFormat })
-    });
-    
-    const data = await response.json();
-    
-    if (!response.ok || !data.success) {
-        showStatus(data.message || "Conversion failed. Try again.");
-        return;
-    }
+        const response = await fetch(`${BACKEND}/api/convert`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url, format: selectedFormat })
+        });
 
-statusBox.classList.add("d-none");
-    thumb.src = data.thumbnail || "", 
-    videoTitle.textContent = data.title || "YouTube Video";
-    downloadLink.href = data.download_url;
+        const data = await response.json();
 
-downloadLink.setAttribute("download", data.title || "download");
+        if (!response.ok || !data.success) {
+            showStatus(data.message || "Conversion failed. Try again.");
+            return;
+        }
 
-resultBox.classList.remove("d-none");
+        statusBox.classList.add("d-none");
+        thumb.src = data.thumbnail || "";
+        videoTitle.textContent = data.title || "YouTube Video";
+        downloadLink.href = data.download_url;
+        downloadLink.setAttribute("download", data.title || "download");
+        resultBox.classList.remove("d-none");
 
     } catch (error) {
         showStatus("Something went wrong. Please try again.");
@@ -76,6 +73,5 @@ resultBox.classList.remove("d-none");
 
 function showStatus(msg) {
     statusBox.textContent = msg;
-
-statusBox.classList.remove("d-none");
+    statusBox.classList.remove("d-none");
 }
