@@ -2,16 +2,16 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import requests
 import os
+import re
 
 app = Flask(__name__)
 CORS(app)
 
-# Ibinagong Key para pumasok ang subscription mo
+# Siguradong Key at Host para sa iyong subscription
 RAPIDAPI_KEY = "a40dbce6a6msh41f1dd96a1aded6p1421f6jsnc533aa579bd37"
 RAPIDAPI_HOST = "youtube-mp36.p.rapidapi.com"
 
 def extract_video_id(url):
-    import re
     patterns = [
         r"v=([0-9A-Za-z_-]{11})",               
         r"youtu\.be\/([0-9A-Za-z_-]{11})",       
@@ -26,27 +26,32 @@ def extract_video_id(url):
 
 @app.route("/api/convert", methods=["POST"])
 def convert():
-    data = request.get_json()
-    url = data.get("url", "").strip()
-    fmt = data.get("format", "mp3").lower()
-
-    if not url:
-        return jsonify({"success": False, "message": "No URL provided."}), 400
-
-    video_id = extract_video_id(url)
-    if not video_id:
-        return jsonify({"success": False, "message": "Invalid YouTube URL"}), 400
-
-    thumbnail = f"https://img.youtube.com/vi/{video_id}/hqdefault.jpg"
-
-    api_url = "https://youtube-mp36.p.rapidapi.com/dl"
-    headers = {
-        "x-rapidapi-key": RAPIDAPI_KEY,
-        "x-rapidapi-host": RAPIDAPI_HOST
-    }
-    params = {"id": video_id}
-    
     try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"success": False, "message": "Missing JSON body."}), 400
+            
+        url = data.get("url", "").strip()
+        fmt = data.get("format", "mp3").lower()
+
+        if not url:
+            return jsonify({"success": False, "message": "No URL provided."}), 400
+
+        video_id = extract_video_id(url)
+        if not video_id:
+            return jsonify({"success": False, "message": "Invalid YouTube URL"}), 400
+
+        thumbnail = f"https://img.youtube.com/vi/{video_id}/hqdefault.jpg"
+
+        api_url = "https://youtube-mp36.p.rapidapi.com/dl"
+        
+        # Standard capitalization para tanggapin ng RapidAPI system
+        headers = {
+            "X-RapidAPI-Key": RAPIDAPI_KEY,
+            "X-RapidAPI-Host": RAPIDAPI_HOST
+        }
+        params = {"id": video_id}
+        
         response = requests.get(api_url, headers=headers, params=params)
         result = response.json()
 
