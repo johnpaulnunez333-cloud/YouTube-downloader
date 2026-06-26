@@ -23,7 +23,6 @@ def extract_video_id(url):
             return match.group(1)
     return None
 
-
 @app.route("/api/convert", methods=["POST"])
 def convert():
     data = request.get_json()
@@ -45,20 +44,31 @@ def convert():
         "x-rapidapi-host": RAPIDAPI_HOST
     }
     params = {"id": video_id}
+    
+    try:
+        # Inayos ang tab/space dito para hindi mag-IndentationError
+        response = requests.get(api_url, headers=headers, params=params)
+        
+        # Lalabas ito sa Render Logs para makita natin ang error kung meron man
+        print("RapidAPI Response:", response.text) 
+        
+        result = response.json()
 
-    response = requests.get(api_url, headers=headers, params=params)
-    result = response.json()
-
-    if result.get("status") == "ok":
-        return jsonify({
-            "success": True,
-            "title": result.get("title", "YouTube Video"),
-            "download_url": result.get("link"),
-            "thumbnail": thumbnail,
-            "format": fmt
-        })
-    else:
-        return jsonify({"success": False, "message": "Conversion failed. Try again later."}), 500
+        if result.get("status") == "ok":
+            return jsonify({
+                "success": True,
+                "title": result.get("title", "YouTube Video"),
+                "download_url": result.get("link"),
+                "thumbnail": thumbnail,
+                "format": fmt
+            })
+        else:
+            # Ipakita ang totoong dahilan mula sa RapidAPI
+            api_msg = result.get("msg") or result.get("message") or "Conversion failed."
+            return jsonify({"success": False, "message": f"API Error: {api_msg}"}), 500
+            
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Server Error: {str(e)}"}), 500
 
 @app.route("/")
 def index():
