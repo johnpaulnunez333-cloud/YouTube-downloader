@@ -12,14 +12,17 @@ RAPIDAPI_HOST = "youtube-mp36.p.rapidapi.com"
 def extract_video_id(url):
     import re
     patterns = [
-        r"(?:v=|/)([0-9A-Za-z_-]{11})",
-        r"youtu\.be\/([0-9A-Za-z_-]{11})"
+        r"v=([0-9A-Za-z_-]{11})",               # Matches v=abcdefghijk (Standard & Music URLs)
+        r"youtu\.be\/([0-9A-Za-z_-]{11})",       # Matches short share URLs
+        r"embed\/([0-9A-Za-z_-]{11})",           # Matches embedded URLs
+        r"shorts\/([0-9A-Za-z_-]{11})"           # Matches YouTube Shorts
     ]
     for pattern in patterns:
         match = re.search(pattern, url)
         if match:
             return match.group(1)
     return None
+
 
 @app.route("/api/convert", methods=["POST"])
 def convert():
