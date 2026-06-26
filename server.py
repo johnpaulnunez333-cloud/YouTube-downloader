@@ -6,16 +6,17 @@ import os
 app = Flask(__name__)
 CORS(app)
 
+# Ibinagong Key para pumasok ang subscription mo
 RAPIDAPI_KEY = "a40dbce6a6msh41f1dd96a1aded6p1421f6jsnc533aa579bd37"
 RAPIDAPI_HOST = "youtube-mp36.p.rapidapi.com"
 
 def extract_video_id(url):
     import re
     patterns = [
-        r"v=([0-9A-Za-z_-]{11})",               # Matches v=abcdefghijk (Standard & Music URLs)
-        r"youtu\.be\/([0-9A-Za-z_-]{11})",       # Matches short share URLs
-        r"embed\/([0-9A-Za-z_-]{11})",           # Matches embedded URLs
-        r"shorts\/([0-9A-Za-z_-]{11})"           # Matches YouTube Shorts
+        r"v=([0-9A-Za-z_-]{11})",               
+        r"youtu\.be\/([0-9A-Za-z_-]{11})",       
+        r"embed\/([0-9A-Za-z_-]{11})",           
+        r"shorts\/([0-9A-Za-z_-]{11})"           
     ]
     for pattern in patterns:
         match = re.search(pattern, url)
@@ -46,12 +47,7 @@ def convert():
     params = {"id": video_id}
     
     try:
-        # Inayos ang tab/space dito para hindi mag-IndentationError
         response = requests.get(api_url, headers=headers, params=params)
-        
-        # Lalabas ito sa Render Logs para makita natin ang error kung meron man
-        print("RapidAPI Response:", response.text) 
-        
         result = response.json()
 
         if result.get("status") == "ok":
@@ -63,7 +59,6 @@ def convert():
                 "format": fmt
             })
         else:
-            # Ipakita ang totoong dahilan mula sa RapidAPI
             api_msg = result.get("msg") or result.get("message") or "Conversion failed."
             return jsonify({"success": False, "message": f"API Error: {api_msg}"}), 500
             
@@ -76,3 +71,4 @@ def index():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+
