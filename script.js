@@ -60,7 +60,7 @@ convertBtn.addEventListener("click", async () => {
         downloadLink.setAttribute("download", `${data.title || "video"}.${selectedFormat}`);
         resultBox.classList.remove("d-none");
 
-    } data_error => {
+    } catch (error) {
         showStatus("Something went wrong. Please try again.");
     }
 });
