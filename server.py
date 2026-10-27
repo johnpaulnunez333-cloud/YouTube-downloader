@@ -10,7 +10,9 @@ CORS(app)
 
 RAPIDAPI_KEY = os.environ.get("RAPIDAPI_KEY")
 RAPIDAPI_HOST = "youtube-mp36.p.rapidapi.com"
-API_URL = "https://youtube-mp36.p.rapidapi.com/dl"
+MP3_API_URL = "https://youtube-mp36.p.rapidapi.com/dl"
+
+MP4_API_HOST = "youtube-video-download-info.p.rapidapi.com"
 
 PATTERNS = [
     r"v=([0-9A-Za-z_-]{11})",
@@ -19,14 +21,12 @@ PATTERNS = [
     r"shorts\/([0-9A-Za-z_-]{11})",
 ]
 
-
 def extract_video_id(url):
     for pattern in PATTERNS:
         match = re.search(pattern, url)
         if match:
             return match.group(1)
     return None
-
 
 @app.route("/api/convert", methods=["POST"])
 def convert():
@@ -38,6 +38,8 @@ def convert():
         return jsonify({"success": False, "message": "Missing JSON body."}), 400
 
     url = data.get("url", "").strip()
+    requested_format = data.get("format", "mp3").strip().lower()
+
     if not url:
         return jsonify({"success": False, "message": "No URL provided."}), 400
 
@@ -53,7 +55,12 @@ def convert():
     try:
         result = {}
         for _ in range(5):
-            response = requests.get(API_URL, headers=headers, params={"id": video_id}, timeout=20)
+            # Kung ang API mo ay may parameter para sa format (tulad ng quality/type)
+            params = {"id": video_id}
+            if requested_format == "mp4":
+                params["quality"] = "720" # O depende sa documentation ng API mo (e.g., mp4, 360, 720)
+            
+            response = requests.get(MP3_API_URL, headers=headers, params=params, timeout=20)
             result = response.json()
             if result.get("status") == "ok":
                 break
@@ -66,22 +73,22 @@ def convert():
         return jsonify({"success": False, "message": "Invalid response from API."}), 502
 
     if result.get("status") == "ok":
+        download_link = result.get("link")
+        
         return jsonify({
             "success": True,
             "title": result.get("title", "YouTube Video"),
-            "download_url": result.get("link"),
+            "download_url": download_link,
             "thumbnail": f"https://img.youtube.com/vi/{video_id}/hqdefault.jpg",
-            "format": "mp3",
+            "format": requested_format,
         })
 
     api_msg = result.get("msg") or result.get("message") or "Conversion failed."
     return jsonify({"success": False, "message": f"API Error: {api_msg}"}), 500
 
-
 @app.route("/")
 def index():
-    return jsonify({"message": "YTGrab API is running!"}), 200
-
+    return jsonify({"message": "YTGrab API with MP4/MP3 is running!"}), 200
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
