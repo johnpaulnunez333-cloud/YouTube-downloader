@@ -84,6 +84,7 @@ def convert():
                 result.get("link") or 
                 result.get("url") or 
                 result.get("download_url") or
+                result.get("download") or
                 (result.get("links", [{}])[0].get("url") if isinstance(result.get("links"), list) else None)
             )
             
@@ -96,7 +97,8 @@ def convert():
                     "format": "mp4",
                 })
             else:
-                return jsonify({"success": False, "message": result.get("message", "MP4 conversion failed from API.")}), 400
+                err_msg = result.get("message") or result.get("error") or "MP4 conversion failed from API."
+                return jsonify({"success": False, "message": err_msg}), 400
         except Exception as e:
             return jsonify({"success": False, "message": f"API Error: {str(e)}"}), 500
 
