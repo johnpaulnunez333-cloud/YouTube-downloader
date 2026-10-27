@@ -38,18 +38,22 @@ def extract_video_id(url):
 def pick_mp4_url(result):
     """Pick the best MP4 link (with audio + video) from the API response."""
     formats = result.get("formats") or []
+    def height(f):
+        try:
+            return int(f.get("height") or 0)
+        except (TypeError, ValueError):
+            return 0
+
     mp4s = [
         f for f in formats
         if isinstance(f, dict) and "mp4" in str(f.get("mimeType", "")).lower() and f.get("url")
     ]
+    # Mas gusto: hanggang 720p, pinakamataas muna
+    ok = sorted([f for f in mp4s if 0 < height(f) <= 720], key=height, reverse=True)
+    if ok:
+        return ok[0]["url"]
     if mp4s:
-        def quality(f):
-            try:
-                return int(f.get("height") or f.get("width") or 0)
-            except (TypeError, ValueError):
-                return 0
-        mp4s.sort(key=quality, reverse=True)
-        return mp4s[0]["url"]
+        return sorted(mp4s, key=height)[0]["url"]
 
     # Fallbacks for other possible response shapes
     links = result.get("links")
