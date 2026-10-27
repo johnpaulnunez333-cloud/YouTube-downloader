@@ -1,6 +1,6 @@
 const BACKEND = "https://youtube-downloader-2-l4gt.onrender.com";
 
-let selectedFormat = "mp3"
+let selectedFormat = "mp3";
 
 const btnMp3 = document.getElementById("btn-mp3");
 const btnMp4 = document.getElementById("btn-mp4");
@@ -26,15 +26,9 @@ btnMp4.addEventListener("click", () => {
     btnMp3.classList.remove("active");
     statusBox.classList.add("d-none");
     resultBox.classList.add("d-none");
-    showStatus("⚠️ MP4 download is currently under development. Please use MP3 for now.");
 });
 
 convertBtn.addEventListener("click", async () => {
-    if (selectedFormat === "mp4") {
-        showStatus("⚠️ MP4 download is currently under development. Please use MP3 for now.");
-        return;
-    }
-
     const url = urlInput.value.trim();
 
     if (!url) {
@@ -42,7 +36,7 @@ convertBtn.addEventListener("click", async () => {
         return;
     }
 
-    showStatus("Converting... please wait.");
+    showStatus(`Converting to ${selectedFormat.toUpperCase()}... please wait.`);
     resultBox.classList.add("d-none");
 
     try {
@@ -63,10 +57,10 @@ convertBtn.addEventListener("click", async () => {
         thumb.src = data.thumbnail || "";
         videoTitle.textContent = data.title || "YouTube Video";
         downloadLink.href = data.download_url;
-        downloadLink.setAttribute("download", data.title || "download");
+        downloadLink.setAttribute("download", `${data.title || "video"}.${selectedFormat}`);
         resultBox.classList.remove("d-none");
 
-    } catch (error) {
+    } data_error => {
         showStatus("Something went wrong. Please try again.");
     }
 });
