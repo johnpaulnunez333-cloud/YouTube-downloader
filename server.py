@@ -11,6 +11,7 @@ RAPIDAPI_KEY = os.environ.get("RAPIDAPI_KEY")
 MP3_HOST = "youtube-mp36.p.rapidapi.com"
 MP3_URL = "https://youtube-mp36.p.rapidapi.com/dl"
 
+MP4_RAPIDAPI_KEY = os.environ.get("MP4_RAPIDAPI_KEY") or RAPIDAPI_KEY
 MP4_HOST = "youtube-video-fast-downloader-24-7.p.rapidapi.com"
 
 PATTERNS = [
@@ -43,10 +44,10 @@ def convert():
     if not video_id:
         return jsonify({"success": False, "message": "Invalid YouTube URL."}), 400
 
-    if not RAPIDAPI_KEY:
-        return jsonify({"success": False, "message": "Server API key is not configured."}), 500
-
     if requested_format == "mp3":
+        if not RAPIDAPI_KEY:
+            return jsonify({"success": False, "message": "MP3 API key is not configured."}), 500
+            
         headers = {
             "X-RapidAPI-Key": RAPIDAPI_KEY,
             "X-RapidAPI-Host": MP3_HOST,
@@ -67,9 +68,12 @@ def convert():
         return jsonify({"success": False, "message": "MP3 conversion failed."}), 500
 
     else:
+        if not MP4_RAPIDAPI_KEY:
+            return jsonify({"success": False, "message": "MP4 API key is not configured."}), 500
+
         mp4_url = f"https://{MP4_HOST}/download_video/{video_id}"
         headers = {
-            "X-RapidAPI-Key": RAPIDAPI_KEY,
+            "X-RapidAPI-Key": MP4_RAPIDAPI_KEY,
             "X-RapidAPI-Host": MP4_HOST,
         }
         try:
