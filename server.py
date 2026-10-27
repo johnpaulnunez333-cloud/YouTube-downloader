@@ -14,7 +14,7 @@ MP3_HOST = "youtube-mp36.p.rapidapi.com"
 MP3_URL = "https://youtube-mp36.p.rapidapi.com/dl"
 
 MP4_HOST = "youtube-video-fast-downloader-24-7.p.rapidapi.com"
-MP4_URL = "https://youtube-video-fast-downloader-24-7.p.rapidapi.com/v1/download"
+MP4_URL = "https://youtube-video-fast-downloader-24-7.p.rapidapi.com/v1/downloadVideoUrl" # Palitan kung iba ang exact endpoint path sa code snippet ng RapidAPI
 
 PATTERNS = [
     r"v=([0-9A-Za-z_-]{11})",
@@ -54,7 +54,7 @@ def convert():
     if requested_format == "mp4":
         api_host = MP4_HOST
         api_url = MP4_URL
-        params = {"videoid": video_id}
+        params = {"videoid": video_id, "quality": "247"} # Naglagay tayo ng default quality parameter na nakita sa screen mo
     else:
         api_host = MP3_HOST
         api_url = MP3_URL
